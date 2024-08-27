@@ -11,9 +11,19 @@ const int pins[] = {16,17,18,19,20,21,22,26,5,28};
 //28,5,26,22,21,20,19,18,17,16
 SimpleDHT22 dht22(DHT);
 
-
+uint8_t drop[8] = {
+  0b00001,
+  0b00011,
+  0b00101,
+  0b01001,
+  0b10001,
+  0b10010,
+  0b01100,
+  0b00000,
+};
 
 void setup() {
+  lcd.createChar(1,drop);
   Serial1.begin(115200);
   lcd.begin(16, 2);
   //lcd.print("Hello World!");
@@ -32,13 +42,15 @@ void loop() {
   lcd.clear();
   lcd.setCursor(0,0);
 
+  String text = "";
+
   float temperature = 0;
   float humidity = 0;
 
   int err = SimpleDHTErrSuccess;
 
   float bright = analogRead(photoresistor);
-  float brightness = map(bright,8,1016,0,10);
+  float brightness = map(bright,8,1016,10,0);
 
   Serial1.println(brightness);
   for(int i = 0; i < 10;i++){
@@ -60,7 +72,17 @@ void loop() {
   lcd.print((float)humidity); lcd.println("%");
   if(humidity < 20){
     lcd.setCursor(0,1);
-    lcd.print("waterr :(");
+    text += "\x01 ";
+    okay = false;
+  }
+  if(temperature < 25){
+    lcd.setCursor(0,1);
+    text += "brr, cold";
+    okay = false;
+  }
+  if(temperature > 35){
+    lcd.setCursor(0,1);
+    text += "too hot";
     okay = false;
   }
   if(okay == false){
@@ -72,6 +94,7 @@ void loop() {
         analogWrite(R,0);
 
   }
+  lcd.print(text);
   // DHT22 sampling rate is 0.5HZ.
   delay(2500);
 
