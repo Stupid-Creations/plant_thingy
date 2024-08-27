@@ -50,7 +50,7 @@ void loop() {
   int err = SimpleDHTErrSuccess;
 
   float bright = analogRead(photoresistor);
-  float brightness = map(bright,8,1016,10,0);
+  float brightness = map(bright,8,633,10,0);
 
   Serial1.println(brightness);
   for(int i = 0; i < 10;i++){
